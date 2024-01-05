@@ -12,8 +12,18 @@ class TotpProvider with ChangeNotifier {
 
   TotpProvider() {
     loadCodes();
-    timer =
-        Timer.periodic(const Duration(seconds: 30), (Timer t) => loadCodes());
+    startTimer();
+  }
+
+  void startTimer() {
+    final now = DateTime.now();
+    final secondsUntilNextRefresh = 30 - now.second % 30;
+
+    Timer(Duration(seconds: secondsUntilNextRefresh), () {
+      loadCodes();
+      timer =
+          Timer.periodic(const Duration(seconds: 30), (Timer t) => loadCodes());
+    });
   }
 
   int _timeOffset = 0;
