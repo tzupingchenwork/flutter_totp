@@ -43,30 +43,39 @@ class TotpListPageState extends State<TotpListPage> {
       appBar: AppBar(
         title: const Text('TOTP List'),
       ),
-      body: Consumer<TotpProvider>(
-        builder: (context, totpProvider, child) {
-          return ListView.builder(
-            itemCount: totpProvider.codes.length,
-            itemBuilder: (context, index) {
-              String code = totpProvider.codes[index];
-              return Card(
-                margin: const EdgeInsets.all(8.0),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 10.0),
-                  title: Text(
-                    'Code: $code',
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+      body: Consumer<TotpProvider>(builder: (context, totpProvider, child) {
+        return ListView.builder(
+          itemCount: totpProvider.codes.length,
+          itemBuilder: (context, index) {
+            String code = totpProvider.codes[index];
+            double progress = totpProvider.remainingTime / 30; // 計算進度
+
+            return Card(
+              margin: const EdgeInsets.all(8.0),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 10.0),
+                title: Text(
+                  'Code: $code',
+                  style: const TextStyle(
+                      fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
-              );
-            },
-          );
-        },
-      ),
+                trailing: Stack(
+                  alignment: Alignment.center,
+                  children: <Widget>[
+                    CircularProgressIndicator(
+                      value: progress, // 設置進度條進度
+                      backgroundColor: Colors.grey[200],
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                    Text('${totpProvider.remainingTime}s'),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 }
