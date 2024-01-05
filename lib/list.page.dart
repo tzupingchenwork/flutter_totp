@@ -7,11 +7,10 @@ import 'package:provider/provider.dart';
 class TotpListPage extends StatefulWidget {
   const TotpListPage({super.key});
   @override
-  // ignore: library_private_types_in_public_api
-  _TotpListPageState createState() => _TotpListPageState();
+  TotpListPageState createState() => TotpListPageState();
 }
 
-class _TotpListPageState extends State<TotpListPage> {
+class TotpListPageState extends State<TotpListPage> {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   List<String> keys = [];
   Timer? timer;
