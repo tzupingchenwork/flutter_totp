@@ -10,9 +10,13 @@ class TotpProvider with ChangeNotifier {
   List<String> codes = [];
   Timer? timer;
 
+  Timer? _secondTimer;
+  int remainingTime = 30;
+
   TotpProvider() {
     loadCodes();
     startTimer();
+    _startSecondTimer();
   }
 
   void startTimer() {
@@ -24,6 +28,17 @@ class TotpProvider with ChangeNotifier {
       timer =
           Timer.periodic(const Duration(seconds: 30), (Timer t) => loadCodes());
     });
+  }
+
+  void _startSecondTimer() {
+    _secondTimer = Timer.periodic(
+        const Duration(seconds: 1), (_) => updateRemainingTime());
+  }
+
+  void updateRemainingTime() {
+    final now = DateTime.now();
+    remainingTime = 30 - now.second % 30;
+    notifyListeners();
   }
 
   int _timeOffset = 0;
@@ -80,6 +95,7 @@ class TotpProvider with ChangeNotifier {
   @override
   void dispose() {
     timer?.cancel();
+    _secondTimer?.cancel();
     super.dispose();
   }
 }
