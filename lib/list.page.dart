@@ -13,30 +13,6 @@ class TotpListPage extends StatefulWidget {
 
 class TotpListPageState extends State<TotpListPage> {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  List<String> keys = [];
-  Timer? timer;
-
-  @override
-  void initState() {
-    super.initState();
-    timer =
-        Timer.periodic(const Duration(seconds: 30), (Timer t) => loadKeys());
-  }
-
-  @override
-  void dispose() {
-    timer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> loadKeys() async {
-    final allKeys = await storage.readAll();
-    if (allKeys.isNotEmpty) {
-      setState(() {
-        keys = allKeys.values.toList();
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +25,6 @@ class TotpListPageState extends State<TotpListPage> {
           itemCount: totpProvider.jsonList.length,
           itemBuilder: (context, index) {
             Map<String, dynamic> codeMap = totpProvider.jsonList[index];
-            inspect(codeMap);
             String type = codeMap['type'];
             String label = codeMap['label'];
             String secret = codeMap['secret'];

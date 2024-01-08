@@ -1,6 +1,8 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_totp/totp_provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
@@ -24,10 +26,16 @@ class _ScanPageState extends State<ScanPage> {
       appBar: AppBar(
         title: const Text('Scan QR Code'),
       ),
-      body: QRView(
-        key: qrKey,
-        onQRViewCreated: _onQRViewCreated,
-      ),
+      body: Consumer<TotpProvider>(builder: (context, totpProvider, child) {
+        return Column(
+          children: <Widget>[
+            QRView(
+              key: qrKey,
+              onQRViewCreated: _onQRViewCreated,
+            ),
+          ],
+        );
+      }),
     );
   }
 
@@ -50,6 +58,7 @@ class _ScanPageState extends State<ScanPage> {
       await widget.storage.write(key: key, value: value);
 
       // Show a snack bar
+      var context = this.context; // Store the BuildContext in a variable
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -57,6 +66,11 @@ class _ScanPageState extends State<ScanPage> {
               'QR Code scanned successfully! Secret: $secret, Issuer: $issuer'),
         ),
       );
+
+      // Load codes immediately after scanning
+      // ignore: use_build_context_synchronously
+      var totpProvider = Provider.of<TotpProvider>(context, listen: false);
+      await totpProvider.loadCodes();
 
       // Wait for one second and then navigate to the list page
       Future.delayed(const Duration(seconds: 1)).then((_) {

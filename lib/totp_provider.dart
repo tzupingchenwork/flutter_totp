@@ -10,7 +10,6 @@ class TotpProvider with ChangeNotifier {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
   List<Map<String, dynamic>> jsonList = [];
   Timer? timer;
-
   Timer? _secondTimer;
   int remainingTime = 30;
 
@@ -55,6 +54,7 @@ class TotpProvider with ChangeNotifier {
   }
 
   Future<void> loadCodes() async {
+    await syncTimeWithServer();
     final allKeys = await storage.readAll();
     jsonList.clear(); // 清空列表以便重新填充
     if (allKeys.isNotEmpty) {
