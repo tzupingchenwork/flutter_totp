@@ -72,19 +72,38 @@ class _MyHomePageState extends State<MyHomePage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
+                      final TextEditingController nameController =
+                          TextEditingController();
+                      final TextEditingController issuerController =
+                          TextEditingController();
+                      final TextEditingController keyController =
+                          TextEditingController();
+
                       return AlertDialog(
                         title: const Text('Add TOTP Key'),
-                        content: TextField(
-                          controller: widget.controller,
-                          autofocus: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Key',
-                          ),
-                          onSubmitted: (String value) {
-                            Provider.of<TotpProvider>(context, listen: false)
-                                .addCode(value);
-                            Navigator.pop(context);
-                          },
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextField(
+                              controller: nameController,
+                              autofocus: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Name',
+                              ),
+                            ),
+                            TextField(
+                              controller: issuerController,
+                              decoration: const InputDecoration(
+                                labelText: 'Issuer',
+                              ),
+                            ),
+                            TextField(
+                              controller: keyController,
+                              decoration: const InputDecoration(
+                                labelText: 'Secret Key',
+                              ),
+                            ),
+                          ],
                         ),
                         actions: [
                           TextButton(
@@ -95,10 +114,21 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                           TextButton(
                             onPressed: () {
-                              String value = widget.controller.text;
+                              String name = nameController.text;
+                              String issuer = issuerController.text;
+                              String secret = keyController.text;
                               Provider.of<TotpProvider>(context, listen: false)
-                                  .addCode(value);
-                              Navigator.pop(context);
+                                  .addCode(name, secret, issuer);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                      'Added successfully! Secret: $secret, Issuer: $issuer'),
+                                ),
+                              );
+                              Future.delayed(const Duration(seconds: 1))
+                                  .then((_) {
+                                Navigator.pushNamed(context, '/list');
+                              });
                             },
                             child: const Text('Add'),
                           ),
@@ -110,8 +140,32 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Provider.of<TotpProvider>(context, listen: false)
-                      .removeAllCodes();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Confirm'),
+                        content: const Text(
+                            'Are you sure you want to remove all codes?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('No'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Provider.of<TotpProvider>(context, listen: false)
+                                  .removeAllCodes();
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Yes'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 child: const Text('Clear All'),
               )

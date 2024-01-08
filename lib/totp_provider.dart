@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:otp/otp.dart';
@@ -85,8 +84,16 @@ class TotpProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addCode(String key) async {
-    await storage.write(key: key, value: key);
+  Future<void> addCode(String name, String secret, String issuer) async {
+    String key = 'totpKey_${DateTime.now().millisecondsSinceEpoch}';
+    String value = jsonEncode(
+        {'type': 'otp', 'label': name, 'secret': secret, 'issuer': issuer});
+
+    print(name);
+    print(secret);
+    // Store the JSON object
+    await storage.write(key: key, value: value);
+    // Reload the codes and notify listeners
     await loadCodes();
     notifyListeners();
   }
