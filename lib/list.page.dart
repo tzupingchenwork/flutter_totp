@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_totp/totp_provider.dart';
@@ -45,10 +46,16 @@ class TotpListPageState extends State<TotpListPage> {
       ),
       body: Consumer<TotpProvider>(builder: (context, totpProvider, child) {
         return ListView.builder(
-          itemCount: totpProvider.codes.length,
+          itemCount: totpProvider.jsonList.length,
           itemBuilder: (context, index) {
-            String code = totpProvider.codes[index];
-            double progress = totpProvider.remainingTime / 30; // 計算進度
+            Map<String, dynamic> codeMap = totpProvider.jsonList[index];
+            inspect(codeMap);
+            String type = codeMap['type'];
+            String label = codeMap['label'];
+            String secret = codeMap['secret'];
+            String issuer = codeMap['issuer'];
+            String code = codeMap['code'];
+            double progress = totpProvider.remainingTime / 30;
 
             return Card(
               margin: const EdgeInsets.all(8.0),
@@ -56,7 +63,7 @@ class TotpListPageState extends State<TotpListPage> {
                 contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16.0, vertical: 10.0),
                 title: Text(
-                  'Code: $code',
+                  'Label: $label\nType: $type\nIssuer: $issuer\nSecret: $secret\nCode: $code',
                   style: const TextStyle(
                       fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
@@ -66,7 +73,8 @@ class TotpListPageState extends State<TotpListPage> {
                     CircularProgressIndicator(
                       value: progress, // 設置進度條進度
                       backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(Colors.blue),
                     ),
                     Text('${totpProvider.remainingTime}s'),
                   ],

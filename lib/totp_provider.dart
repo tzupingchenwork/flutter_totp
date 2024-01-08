@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:otp/otp.dart';
@@ -7,7 +8,7 @@ import 'package:ntp/ntp.dart';
 
 class TotpProvider with ChangeNotifier {
   final FlutterSecureStorage storage = const FlutterSecureStorage();
-  List<String> codes = [];
+  List<Map<String, dynamic>> jsonList = [];
   Timer? timer;
 
   Timer? _secondTimer;
@@ -55,23 +56,33 @@ class TotpProvider with ChangeNotifier {
 
   Future<void> loadCodes() async {
     final allKeys = await storage.readAll();
+    jsonList.clear(); // 清空列表以便重新填充
     if (allKeys.isNotEmpty) {
-      final currentTime = DateTime.now().millisecondsSinceEpoch + _timeOffset;
-      codes = List<String>.from(allKeys.values.map((jsonStr) {
+      for (var jsonStr in allKeys.values) {
         if (jsonStr.startsWith('{')) {
           var map = jsonDecode(jsonStr);
           var secret = map['secret'];
+          var type = map['type'];
+          var label = map['label'];
+          var issuer = map['issuer'];
           if (secret != null) {
-            return OTP.generateTOTPCodeString(secret, currentTime,
-                interval: 30,
-                algorithm: Algorithm.SHA1,
-                length: 6,
-                isGoogle: true);
+            jsonList.add({
+              'type': type,
+              'label': label,
+              'secret': secret,
+              'issuer': issuer,
+              'code': OTP.generateTOTPCodeString(
+                  secret, DateTime.now().millisecondsSinceEpoch + _timeOffset,
+                  interval: 30,
+                  algorithm: Algorithm.SHA1,
+                  length: 6,
+                  isGoogle: true)
+            });
           }
         }
-      }).where((code) => code != null));
-      notifyListeners();
+      }
     }
+    notifyListeners();
   }
 
   Future<void> addCode(String key) async {

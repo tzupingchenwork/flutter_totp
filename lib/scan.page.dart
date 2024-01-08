@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -36,12 +38,15 @@ class _ScanPageState extends State<ScanPage> {
 
       // Parse the OTPAUTH URI
       var uri = Uri.parse(scanData.code!);
+      var type = uri.scheme;
+      var label = uri.pathSegments[0];
       var secret = uri.queryParameters['secret'];
       var issuer = uri.queryParameters['issuer'];
 
       // Store the secret and issuer
       String key = 'totpKey_${DateTime.now().millisecondsSinceEpoch}';
-      String value = jsonEncode({'secret': secret, 'issuer': issuer});
+      String value = jsonEncode(
+          {'type': type, 'label': label, 'secret': secret, 'issuer': issuer});
       await widget.storage.write(key: key, value: value);
 
       // Show a snack bar
