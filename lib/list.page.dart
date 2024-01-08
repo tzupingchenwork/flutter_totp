@@ -52,6 +52,73 @@ class TotpListPageState extends State<TotpListPage> {
                     Text('${totpProvider.remainingTime}s'),
                   ],
                 ),
+                onLongPress: () {
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ListTile(
+                            leading: const Icon(Icons.edit),
+                            title: const Text('Edit'),
+                            onTap: () {
+                              final TextEditingController labelController =
+                                  TextEditingController();
+
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Edit Label'),
+                                    content: TextField(
+                                      controller: labelController,
+                                      autofocus: true,
+                                      decoration: const InputDecoration(
+                                        labelText: 'Label',
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          // Update the label
+                                          Navigator.pop(context);
+                                        },
+                                        child: const Text('Save'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+
+                              Navigator.pop(context);
+                            },
+                          ),
+                          ListTile(
+                            leading: const Icon(Icons.delete),
+                            title: const Text('Delete'),
+                            onTap: () {
+                              var totpProvider = Provider.of<TotpProvider>(
+                                  context,
+                                  listen: false);
+                              // get the key from storage key
+                              String key = totpProvider.jsonList[index]['key'];
+                              print(key);
+                              totpProvider.removeCode(key);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
             );
           },

@@ -86,11 +86,13 @@ class TotpProvider with ChangeNotifier {
 
   Future<void> addCode(String name, String secret, String issuer) async {
     String key = 'totpKey_${DateTime.now().millisecondsSinceEpoch}';
-    String value = jsonEncode(
-        {'type': 'otp', 'label': name, 'secret': secret, 'issuer': issuer});
-
-    print(name);
-    print(secret);
+    String value = jsonEncode({
+      'type': 'otp',
+      'label': name,
+      'secret': secret,
+      'issuer': issuer,
+      'key': key
+    });
     // Store the JSON object
     await storage.write(key: key, value: value);
     // Reload the codes and notify listeners

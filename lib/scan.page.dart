@@ -51,8 +51,13 @@ class _ScanPageState extends State<ScanPage> {
 
       // Store the secret and issuer
       String key = 'totpKey_${DateTime.now().millisecondsSinceEpoch}';
-      String value = jsonEncode(
-          {'type': type, 'label': label, 'secret': secret, 'issuer': issuer});
+      String value = jsonEncode({
+        'type': type,
+        'label': label,
+        'secret': secret,
+        'issuer': issuer,
+        'key': key
+      });
       await widget.storage.write(key: key, value: value);
 
       // Show a snack bar
